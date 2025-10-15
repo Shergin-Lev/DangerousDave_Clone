@@ -1,0 +1,20 @@
+{
+	"items": [
+	{
+		"key": "weapon_piston_name",
+		"value": "Пистолет"
+	},
+	{
+		"key": "weapon_piston_description",
+		"value": "Надежное оружие со средним уроном."
+	},
+	{
+		"key": "weapon_shotgun_name",
+		"value": "Дробовик"
+	},
+	{
+		"key": "weapon_shotgun_description",
+		"value": "Разрушительная мощь на ближней дистанции."
+	}
+	]
+}
