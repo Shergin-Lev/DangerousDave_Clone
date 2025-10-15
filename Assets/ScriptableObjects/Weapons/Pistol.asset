@@ -18,8 +18,8 @@ MonoBehaviour:
   fireRate: 0.3
   damage: 10
   bullerSpeed: 20
-  recoilForce: 100
-  muzzleFlashPrefab: {fileID: 0}
+  recoilForce: 200
+  muzzleFlashPrefab: {fileID: 4172292158301270898, guid: 10837c202ef32ff4fa87a4b073e7774f, type: 3}
   shootSound: {fileID: 0}
-  shakeDuration: 0.1
-  shakeMagnitude: 0.15
+  shakeDuration: 0.05
+  shakeMagnitude: 0.08

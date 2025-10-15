@@ -62,6 +62,12 @@ public class PlayerShooting : MonoBehaviour
         // Трясём камеру
         CameraShake.Shake(currentWeapon.shakeDuration, currentWeapon.shakeMagnitude);
 
+        // Спавним вспышку
+        if (currentWeapon.muzzleFlashPrefab != null)
+        {
+            Instantiate(currentWeapon.muzzleFlashPrefab, firePoint.position, Quaternion.identity);
+        }
+
         // TODO: Добавить отдачу и эффекты позже
         Debug.Log("Shot fired!");
     }
