@@ -8,10 +8,13 @@ public class PlayerShooting : MonoBehaviour
     [SerializeField] private Transform firePoint; // Точка, откуда вылетает пуля
 
     private PlayerInputAction inputActions;
+    private Rigidbody2D rb;
     private float nextFireTime;
     private bool isFacingRight = true;
 
-    private Rigidbody2D rb;
+    // Для отложенной отдачи
+    private bool shouldApplyRecoil = false;
+    private Vector2 pendingRecoilDirection;
 
     private void Awake()
     {
@@ -56,8 +59,9 @@ public class PlayerShooting : MonoBehaviour
             bulletScript.Initialize(currentWeapon.damage, currentWeapon.bullerSpeed, shootDirection);
         }
 
-        // Применяем отдачу
-        ApplyRecoil(shootDirection);
+        // Запланировать отдачу (применится в FixedUpdate)
+        shouldApplyRecoil = true;
+        pendingRecoilDirection = -shootDirection;
 
         // Трясём камеру
         CameraShake.Shake(currentWeapon.shakeDuration, currentWeapon.shakeMagnitude);
@@ -67,18 +71,23 @@ public class PlayerShooting : MonoBehaviour
         {
             Instantiate(currentWeapon.muzzleFlashPrefab, firePoint.position, Quaternion.identity);
         }
-
-        // TODO: Добавить отдачу и эффекты позже
-        Debug.Log("Shot fired!");
     }
 
-    private void ApplyRecoil(Vector2 shootDirection)
+    private void FixedUpdate()
+    {
+        // Применяем отдачу в FixedUpdate() синхронизация с физикой
+        if (shouldApplyRecoil)
+        {
+            ApplyRecoil();
+            shouldApplyRecoil = false;
+        }
+    }
+
+    private void ApplyRecoil()
     {
         if (rb != null && currentWeapon != null)
         {
-            // Отбрасываем игрока в противоположную сторону
-            Vector2 recoilDirection = -shootDirection;
-            rb.AddForce(recoilDirection * currentWeapon.recoilForce, ForceMode2D.Impulse);
+            rb.AddForce(pendingRecoilDirection * currentWeapon.recoilForce, ForceMode2D.Impulse);
         }
     }
 
