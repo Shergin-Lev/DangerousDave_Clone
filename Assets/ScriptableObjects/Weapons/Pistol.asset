@@ -14,11 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponId: pistol
   weaponSprite: {fileID: 0}
+  bulletData: {fileID: 11400000, guid: 16454c9706262bd46983e7d13aab1ab3, type: 2}
   bulletPrefab: {fileID: 5695220701500425177, guid: b4604e9cee20c5246a0d153ab96e81b7, type: 3}
   fireRate: 0.3
-  damage: 10
-  bullerSpeed: 20
-  recoilForce: 10
+  recoilForce: 0.1
   muzzleFlashPrefab: {fileID: 4172292158301270898, guid: 10837c202ef32ff4fa87a4b073e7774f, type: 3}
   shootSound: {fileID: 0}
   shakeDuration: 0.05

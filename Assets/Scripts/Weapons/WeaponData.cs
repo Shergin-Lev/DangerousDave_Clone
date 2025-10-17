@@ -8,10 +8,9 @@ public class WeaponData : ScriptableObject
     public Sprite weaponSprite;
 
     [Header("Shooting")]
+    public BulletData bulletData;
     public GameObject bulletPrefab;
     public float fireRate = 0.5f; // Время между выстрелами
-    public int damage = 10;
-    public float bullerSpeed = 20f;
 
     [Header("Recoil")]
     public float recoilForce = 2f; // Отдача от выстрела

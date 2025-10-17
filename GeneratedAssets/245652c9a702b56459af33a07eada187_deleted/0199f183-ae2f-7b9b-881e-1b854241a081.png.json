@@ -1,0 +1,20 @@
+{
+    "asset": "245652c9a702b56459af33a07eada187",
+    "fileName": "0199f183-ae2f-7b9b-881e-1b854241a081.png",
+    "prompt": "Create a cartoon-style zombie enemy sprite set for a 2D pixel art game.\nEach sprite should be 16x16 pixels, with frame-by-frame animation for the following actions:\n\nIdle (4 frames)\n\nWalking right (4 frames)\n\nWalking left (4 frames)\n\nMelee attack with hand (4 frames)\n\nFall (4 frames)\n\nThe zombie should have a fun, cartoony look — not too scary, with exaggerated motions and bright colors.\nEach animation frame should be consistent in size and aligned to form a proper sprite sheet for use in Unity 2D.\nBackground should be transparent, and each sprite should be pixel-perfect for retro-style gameplay.",
+    "negativePrompt": "",
+    "model": "94c4260f-b988-40e7-b3d3-435b9f449bd0",
+    "modelName": "Flux.1 Dev",
+    "customSeed": -1,
+    "w3CTraceId": "ef77ab73e7b511556f7b0cc39d2d90ff",
+    "refinementMode": "Generation",
+    "pixelateTargetSize": 0,
+    "pixelateKeepImageSize": false,
+    "pixelatePixelBlockSize": 0,
+    "pixelateMode": 0,
+    "pixelateOutlineThickness": 0,
+    "doodles": {
+        "m_Items": []
+    },
+    "upscaleFactor": 0
+}
