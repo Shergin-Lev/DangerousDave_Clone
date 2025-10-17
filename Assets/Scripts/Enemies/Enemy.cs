@@ -150,14 +150,19 @@ public class Enemy : MonoBehaviour
         {
             Flip();
         }
+
+        Move();
     }
 
     private void Move()
     {
-        // ƒвигаемс€ только по оси X, сохран€€ Y (гравитацию)
-        float horizontalMovement = (isFacingRight ? 1 : -1) * moveSpeed * Time.fixedDeltaTime;
-        Vector2 newPosition = new Vector2(rb.position.x + horizontalMovement, rb.position.y);
-        rb.MovePosition(newPosition);
+        float moveDirection = isFacingRight ? 1 : -1;
+        rb.linearVelocity = new Vector2(moveDirection * moveSpeed, rb.linearVelocityY);
+
+        //// ƒвигаемс€ только по оси X, сохран€€ Y (гравитацию)
+        //float horizontalMovement = (isFacingRight ? 1 : -1) * moveSpeed * Time.fixedDeltaTime;
+        //Vector2 newPosition = new Vector2(rb.position.x + horizontalMovement, rb.position.y);
+        //rb.MovePosition(newPosition);
     }
 
     private bool IsGroundAhead()

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ContactDamage : MonoBehaviour
@@ -9,30 +10,63 @@ public class ContactDamage : MonoBehaviour
     [Header("Knockback")]
     [SerializeField] private float knockbackForce = 5f;
 
-    private float lastDamageTime;
+    // private float lastDamageTime;
+
+    private Dictionary<GameObject, float> lastDamageTimes = new Dictionary<GameObject, float>();
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Проверяем, прошло ли достаточно времени с последнего урона
-        if (Time.time - lastDamageTime < damageAmout) return;
+        GameObject target = collision.gameObject;
+
+        // Проверяем cooldown для ЭТОЙ конкретной цели
+        if (lastDamageTimes.ContainsKey(target))
+        {
+            if (Time.time - lastDamageTimes[target] < damageCooldown)
+            {
+                return;
+            }
+        }
 
         // Проверяем неуязвимость игрока
-        PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
+        PlayerHealth playerHealth = target.GetComponent<PlayerHealth>();
         if (playerHealth != null && playerHealth.IsInvincible())
         {
-            return; // Игрок неуязвим - не наносим урон
+            return;
         }
-        
-        // Пытаемся нанести урон
-        Health health = collision.gameObject.GetComponent<Health>();
-        if(health != null)
+
+        // Наносим урон
+        Health health = target.GetComponent<Health>();
+        if (health != null && !health.IsDead())
         {
             health.TakeDamage(damageAmout);
-            lastDamageTime = Time.time;
+
+            // Обновляем время последнего урона для этой цели
+            lastDamageTimes[target] = Time.time;
 
             // Применяем отталкивание
             ApplyKnockback(collision);
         }
+
+        //// Проверяем, прошло ли достаточно времени с последнего урона
+        //if (Time.time - lastDamageTime < damageAmout) return;
+
+        //// Проверяем неуязвимость игрока
+        //PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
+        //if (playerHealth != null && playerHealth.IsInvincible())
+        //{
+        //    return; // Игрок неуязвим - не наносим урон
+        //}
+        
+        //// Пытаемся нанести урон
+        //Health health = collision.gameObject.GetComponent<Health>();
+        //if(health != null)
+        //{
+        //    health.TakeDamage(damageAmout);
+        //    lastDamageTime = Time.time;
+
+        //    // Применяем отталкивание
+        //    ApplyKnockback(collision);
+        //}
     }
 
     private void ApplyKnockback(Collision2D collision)
@@ -47,8 +81,11 @@ public class ContactDamage : MonoBehaviour
             knockbackDirection.y = 0.5f;
             knockbackDirection.Normalize();
 
-            // Применяем силу
+            targetRb.linearVelocity = new Vector2(targetRb.linearVelocityX, 0); // Сбрасываем вертикальную скорость
             targetRb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+
+            //// Применяем силу
+            //targetRb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
         }
     }
 }
