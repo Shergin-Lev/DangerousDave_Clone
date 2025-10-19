@@ -16,7 +16,7 @@ public class CameraShake : MonoBehaviour
         }
         else
         {
-            Destroy(Instance);
+            Destroy(gameObject);
         }
     }
 

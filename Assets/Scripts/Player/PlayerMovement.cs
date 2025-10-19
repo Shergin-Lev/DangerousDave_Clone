@@ -12,15 +12,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
-
-    private bool isGrounded;
-
+  
     private PlayerInputAction inputActions;
     private Rigidbody2D rb;
     private Vector2 moveInput;
-
+    private bool isGrounded;
     private bool isFacingRight = true;
     private PlayerShooting playerShooting;
+    private float knockbackEndTime;
 
     private void Awake()
     {
@@ -112,9 +111,21 @@ public class PlayerMovement : MonoBehaviour
         if (rb.linearVelocityY < 0) // Если падаем вниз
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallGravityMultiplier - 1) * Time.fixedDeltaTime;
 
-        // Применяем движение через физику
-        rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocityY);
+        if (!IsInKnockback())
+        {
+            rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
+        }
 
         FlipSprite();
+    }
+
+    public void ApplyKnockback(float duration)
+    {
+        knockbackEndTime = Time.time + duration;
+    }
+
+    public bool IsInKnockback()
+    {
+        return Time.time < knockbackEndTime;
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class Bullet : MonoBehaviour
 {
     private BulletData bulletData;
@@ -10,22 +11,19 @@ public class Bullet : MonoBehaviour
     private Rigidbody2D rb;
     private TrailRenderer trail;
     private SpriteRenderer spriteRenderer;
+    private GameObject owner; // Чья пуля
 
-    public void Initialize(BulletData data, Vector2 bulletDirection)
+    public void Initialize(BulletData data, Vector2 bulletDirection, GameObject bulletOwner = null)
     {
         bulletData = data;
         direction = bulletDirection.normalized;
         currentLifeTime = 0f;
         penetrationCount = 0;
+        owner = bulletOwner;
 
-        // Настраиваем визуал
+        // Настраиваем визуал и физику
         SetupVisual();
-
-        // Настраиваем физику если нужна гравитация
-        if (bulletData.affectedByGravity)
-        {
-            SetupPhysics();
-        }
+        SetupPhysics();
     }
 
     private void SetupVisual()
@@ -56,9 +54,23 @@ public class Bullet : MonoBehaviour
 
     private void SetupPhysics()
     {
-        rb = gameObject.AddComponent<Rigidbody2D>();
-        rb.gravityScale = bulletData.gravityScale;
+        rb = GetComponent<Rigidbody2D>();
+
+        rb.gravityScale = bulletData.affectedByGravity ? bulletData.gravityScale : 0;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
         rb.linearVelocity = direction * bulletData.speed;
+
+        if (owner != null)
+        {
+            Collider2D ownerCollider = owner.GetComponent<Collider2D>();
+            Collider2D bulletCollider = GetComponent<Collider2D>();
+            if (ownerCollider != null && bulletCollider != null)
+            {
+                Physics2D.IgnoreCollision(bulletCollider, ownerCollider);
+            }
+        }
     }
 
     private void Update()
@@ -71,82 +83,76 @@ public class Bullet : MonoBehaviour
             return;
         }
 
-        // Если не используем физик - двигаем вручную
-        if (!bulletData.affectedByGravity)
+        if (bulletData.rotateInFlight)
         {
-            MoveBullet();
+            transform.Rotate(0, 0, bulletData.rotationSpeed * Time.deltaTime);
+        }
+
+        if (bulletData.affectedByGravity && rb.linearVelocity.magnitude > 0.1f)
+        {
+            float angle = Mathf.Atan2(rb.linearVelocity.y, rb.linearVelocity.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
         }
     }
 
-    private void MoveBullet()
-    {
-        Vector2 currentPosition = transform.position;
-        Vector2 movement = direction * bulletData.speed * Time.deltaTime;
-        Vector2 newPosition = currentPosition + movement;
-
-        // Проверяем попадания
-        RaycastHit2D hit = Physics2D.Raycast(currentPosition, direction, movement.magnitude);
-
-        if (hit.collider != null)
-        {
-            OnHit(hit);
-            return;
-        }
-
-        transform.position = newPosition;
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         // Для пуль с физикой используем Trigger
-        if (bulletData.affectedByGravity)
-        {
-            RaycastHit2D hit = new RaycastHit2D();
-            // Создаём "фейковый" hit для совместимости
-            OnHit(hit, other);
-        }
+        if (owner != null && collision.gameObject == owner)
+            return;
+
+        OnHit(collision);
     }
 
-    private void OnHit(RaycastHit2D hit, Collider2D collider = null)
+    private void OnHit(Collision2D collision)
     {
-        Collider2D targetCollider = collider ?? hit.collider;
-        Vector2 hitPoint = collider != null ? transform.position : (Vector2)hit.point;
+        Collider2D targetCollider = collision.collider;
+        Vector2 hitPoint = collision.contacts[0].point;
+        Vector2 hitNormal = collision.contacts[0].normal;
 
-        // Проверяем, попал ли в "живую" цель
         IDamageable damageable = targetCollider.GetComponent<IDamageable>();
-        Health health = targetCollider.GetComponent<Health>();
 
         if (damageable != null)
         {
-            // Попадение в живую цель
+            // Попадаем в живую цель
             damageable.TakeDamage(bulletData.damage);
             ApplyImpact(targetCollider);
-            SpawnHitEffect(bulletData.hitEnemyEffectPrefab, hitPoint, hit.normal);
+            SpawnHitEffect(bulletData.hitEnemyEffectPrefab, hitPoint, hitNormal);
 
             // Проверяем пробитие
-            if (bulletData.canPenetrateEnemies && penetrationCount < bulletData.maxPenetrarions)
+            if (bulletData.canPenetrateEnemies && penetrationCount < bulletData.maxPenetrations)
             {
                 penetrationCount++;
-                return; // Не уничтожаем пулю
+
+                // Сохраняем оригинальную скорость до игнорирования коллизии
+                Vector2 originalVelocity = rb.linearVelocity;
+
+                // Игнорируем коллизии с этой целью
+                Collider2D bulletCollider = GetComponent<Collider2D>();
+                Physics2D.IgnoreCollision(bulletCollider, targetCollider);
+
+                // Восстанавливаем скорость после столкновения
+                rb.linearVelocity = originalVelocity;
+
+                return;
             }
         }
         else
         {
-            // Попадение в стену
-            SpawnHitEffect(bulletData.hitWallEffectPrefab, hitPoint, hit.normal);              
+            SpawnHitEffect(bulletData.hitWallEffectPrefab, hitPoint, hitNormal);
         }
 
-        // Уничтожаем пулю
         DestroyBullet();
     }
+
 
     private void ApplyImpact(Collider2D target)
     {
         Rigidbody2D targetRb = target.GetComponent<Rigidbody2D>();
         if (targetRb != null && bulletData.impactForce > 0)
         {
-            // Отталкиваем цель в направлении полёта пули
-            targetRb.AddForce(direction * bulletData.impactForce, ForceMode2D.Impulse);
+            Vector2 impactDirection = rb.linearVelocity.normalized;
+            targetRb.AddForce(impactDirection * bulletData.impactForce, ForceMode2D.Impulse);
         }
     }
 

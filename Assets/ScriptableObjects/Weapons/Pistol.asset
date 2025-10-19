@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponId: pistol
   weaponSprite: {fileID: 0}
-  bulletData: {fileID: 11400000, guid: 16454c9706262bd46983e7d13aab1ab3, type: 2}
+  bulletData: {fileID: 11400000, guid: 3e3071b19c5be724b80813f2806f739b, type: 2}
   bulletPrefab: {fileID: 5695220701500425177, guid: b4604e9cee20c5246a0d153ab96e81b7, type: 3}
   fireRate: 0.3
   recoilForce: 0.1

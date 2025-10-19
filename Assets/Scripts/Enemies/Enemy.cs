@@ -21,13 +21,12 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float patrolPauseTime = 2f; // Время паузы перед разворотом
 
     [Header("Death Effects")]
-    [SerializeField] private GameObject deatchEffectPrefab;
+    [SerializeField] private GameObject deathEffectPrefab;
 
     private Health health;
     private Transform player;
     private Rigidbody2D rb;
     private bool isFacingRight = true;
-    private SpriteRenderer spriteRenderer;
 
     // AI States
     private enum EnemyState { Patrol, Chase }
@@ -39,10 +38,9 @@ public class Enemy : MonoBehaviour
     {
         health = GetComponent<Health>();
         rb = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
 
         // Находим игрока по тегу
-        GameObject playerObj = GameObject.FindWithTag("Player");
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
         {
             player = playerObj.transform;
@@ -156,13 +154,9 @@ public class Enemy : MonoBehaviour
 
     private void Move()
     {
-        float moveDirection = isFacingRight ? 1 : -1;
-        rb.linearVelocity = new Vector2(moveDirection * moveSpeed, rb.linearVelocityY);
-
-        //// Двигаемся только по оси X, сохраняя Y (гравитацию)
-        //float horizontalMovement = (isFacingRight ? 1 : -1) * moveSpeed * Time.fixedDeltaTime;
-        //Vector2 newPosition = new Vector2(rb.position.x + horizontalMovement, rb.position.y);
-        //rb.MovePosition(newPosition);
+        float horizontalMovement = (isFacingRight ? 1 : -1) * moveSpeed * Time.fixedDeltaTime;
+        Vector2 newPosition = new Vector2(rb.position.x + horizontalMovement, rb.position.y);
+        rb.MovePosition(newPosition);
     }
 
     private bool IsGroundAhead()
@@ -184,31 +178,6 @@ public class Enemy : MonoBehaviour
         return hit.collider != null;
     }
 
-    //private void MoveTowardPlayer()
-    //{
-    //    // Определяем направление к игроку
-    //    Vector2 direction = (player.position - transform.position).normalized;
-
-    //    // Двигаем врага (Kinematic Rigidbody двигаем через MovePosition)
-    //    Vector2 newPosition = rb.position + direction * moveSpeed * Time.fixedDeltaTime;
-    //    rb.MovePosition(newPosition);
-
-    //    // Переворачиваем спрайт в торону игрока
-    //    FlipTowardsPlayer(direction.x);
-    //}
-
-    //private void FlipTowardsPlayer(float directionX)
-    //{
-    //    if (directionX > 0 && !isFacingRight)
-    //    {
-    //        Flip();
-    //    }
-    //    else if (directionX < 0 && isFacingRight)
-    //    {
-    //        Flip();
-    //    }
-    //}
-
     private void Flip()
     {
         isFacingRight = !isFacingRight;
@@ -220,19 +189,30 @@ public class Enemy : MonoBehaviour
     private void OnDeath()
     {
         // Спавним эффект смерти
-        if (deatchEffectPrefab != null)
+        if (deathEffectPrefab != null)
         {
-            Instantiate(deatchEffectPrefab, transform.position, Quaternion.identity);
-            Debug.Log("DEATH PARTICLES!!!");
+            Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
         }
 
         Destroy(gameObject);
     }
 
-    // Для отладки - показываем радиус обнаружения
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(groundCheck.position, groundCheck.position + Vector3.down * groundCheckDistance);
+        }
+
+        if (wallCheck != null)
+        {
+            Gizmos.color = Color.blue;
+            Vector3 direction = isFacingRight ? Vector3.right : Vector3.left;
+            Gizmos.DrawLine(wallCheck.position, wallCheck.position + direction * wallCheckDistance);
+        }
     }
 }

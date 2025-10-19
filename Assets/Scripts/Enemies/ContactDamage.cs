@@ -22,9 +22,7 @@ public class ContactDamage : MonoBehaviour
         if (lastDamageTimes.ContainsKey(target))
         {
             if (Time.time - lastDamageTimes[target] < damageCooldown)
-            {
                 return;
-            }
         }
 
         // Проверяем неуязвимость игрока
@@ -46,27 +44,14 @@ public class ContactDamage : MonoBehaviour
             // Применяем отталкивание
             ApplyKnockback(collision);
         }
+    }
 
-        //// Проверяем, прошло ли достаточно времени с последнего урона
-        //if (Time.time - lastDamageTime < damageAmout) return;
-
-        //// Проверяем неуязвимость игрока
-        //PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
-        //if (playerHealth != null && playerHealth.IsInvincible())
-        //{
-        //    return; // Игрок неуязвим - не наносим урон
-        //}
-        
-        //// Пытаемся нанести урон
-        //Health health = collision.gameObject.GetComponent<Health>();
-        //if(health != null)
-        //{
-        //    health.TakeDamage(damageAmout);
-        //    lastDamageTime = Time.time;
-
-        //    // Применяем отталкивание
-        //    ApplyKnockback(collision);
-        //}
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (lastDamageTimes.ContainsKey(collision.gameObject))
+        {
+            lastDamageTimes.Remove(collision.gameObject);
+        }
     }
 
     private void ApplyKnockback(Collision2D collision)
@@ -81,11 +66,13 @@ public class ContactDamage : MonoBehaviour
             knockbackDirection.y = 0.5f;
             knockbackDirection.Normalize();
 
-            targetRb.linearVelocity = new Vector2(targetRb.linearVelocityX, 0); // Сбрасываем вертикальную скорость
-            targetRb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+            targetRb.linearVelocity = knockbackDirection * knockbackForce;
 
-            //// Применяем силу
-            //targetRb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+            PlayerMovement playerMovement = collision.gameObject.GetComponent<PlayerMovement>();
+            if (playerMovement != null)
+            {
+                playerMovement.ApplyKnockback(0.3f);
+            }
         }
     }
 }

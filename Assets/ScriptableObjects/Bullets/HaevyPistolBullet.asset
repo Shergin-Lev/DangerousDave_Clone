@@ -18,14 +18,16 @@ MonoBehaviour:
   speed: 15
   lifetime: 5
   affectedByGravity: 1
-  gravityScale: 0.1
+  gravityScale: 0.5
   canPenetrateEnemies: 0
-  maxPenetrarions: 0
+  maxPenetrations: 0
   bulletSprite: {fileID: 0}
   spriteScale: {x: 0.4, y: 0.4}
   trailColor: {r: 1, g: 0.042924877, b: 0.015686274, a: 1}
   trailWidth: 0.1
   trailTime: 0.2
+  rotateInFlight: 1
+  rotationSpeed: 360
   hitEnemyEffectPrefab: {fileID: 5200640486708202256, guid: 990cc46dbd8e5814ab57ce21d5537f60, type: 3}
   hitWallEffectPrefab: {fileID: 2733585353553032958, guid: 62b1c6782838f4f48bb7da7d4ff8dc9b, type: 3}
   hitEnemySound: {fileID: 0}

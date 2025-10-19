@@ -56,7 +56,7 @@ public class PlayerShooting : MonoBehaviour
         Bullet bulletScript = bullet.GetComponent<Bullet>();
         if (bulletScript != null && currentWeapon.bulletData != null)
         {
-            bulletScript.Initialize(currentWeapon.bulletData, shootDirection);
+            bulletScript.Initialize(currentWeapon.bulletData, shootDirection, gameObject);
         }
 
         // Запланировать отдачу (применится в FixedUpdate)

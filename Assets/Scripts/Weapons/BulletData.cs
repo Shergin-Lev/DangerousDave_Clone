@@ -18,7 +18,7 @@ public class BulletData : ScriptableObject
 
     [Header("Penetration")]
     public bool canPenetrateEnemies = false;
-    public int maxPenetrarions = 0; // Сколько врагов может пробить
+    public int maxPenetrations = 0; // Сколько врагов может пробить
 
     [Header("Visual")]
     public Sprite bulletSprite;
@@ -26,6 +26,10 @@ public class BulletData : ScriptableObject
     public Color trailColor = Color.yellow;
     public float trailWidth = 0.1f;
     public float trailTime = 0.2f;
+
+    [Header("Flight Effects")]
+    public bool rotateInFlight = false;
+    public float rotationSpeed = 360f;
 
     [Header("Hit Effects")]
     public GameObject hitEnemyEffectPrefab;
